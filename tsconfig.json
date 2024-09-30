@@ -1,25 +1,26 @@
 {
   "compilerOptions": {
-    "outDir": "${configDir}/dist",
     "target": "ESNext",
     "useDefineForClassFields": true,
     "lib": ["DOM", "DOM.Iterable", "ESNext", "ES2022"],
     "allowJs": true,
-    "skipLibCheck": true,
     "esModuleInterop": false,
     "allowSyntheticDefaultImports": true,
     "strict": true,
     "forceConsistentCasingInFileNames": true,
+    "skipDefaultLibCheck": true,
+    "skipLibCheck": true,
+    "noEmit": false,
+    "noEmitOnError": false,
     "module": "ESNext",
     "moduleResolution": "Bundler",
     "resolveJsonModule": true,
-    "isolatedModules": false,
-    "noEmit": false,
-    "skipDefaultLibCheck": true,
+    "isolatedModules": true,
+    "declaration": true,
     "jsx": "react",
-    "noEmitOnError": false,
     "declarationMap": false,
-    "sourceMap": false,
-    "declaration": true
-  }
+    "sourceMap": false
+  },
+  "include": ["**/src", "**/test", "**/example"],
+  "exclude": ["**/dist"]
 }
