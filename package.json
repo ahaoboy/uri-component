@@ -1,0 +1,29 @@
+{
+  "name": "uri-component",
+  "version": "0.1.0",
+  "homepage": "https://github.com/ahaoboy/uri-component#readme",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": ["dist", "readme.md", "package.json"],
+  "description": "uri-component,encodeURIComponent,decodeURIComponent",
+  "scripts": {
+    "dev": "tsc -w",
+    "build": "tsc",
+    "lint": "biome check --apply-unsafe  ./",
+    "format": "biome format --write  ./",
+    "lint:fix": "biome lint ./ --write --unsafe",
+    "clear": "rm -rf node_modules dist",
+    "release": "pnpm publish -r --access public",
+    "release-alpha": "pnpm publish -r --access public --tag alpha",
+    "bump": "pnpm up --latest --force",
+    "test": "vitest"
+  },
+  "keywords": ["TS", "encodeURIComponent", "decodeURIComponent"],
+  "author": "ahaoboy <504595380@qq.com> (https://github.com/ahaoboy)",
+  "license": "MIT",
+  "devDependencies": {
+    "@biomejs/biome": "1.9.2",
+    "typescript": "5.6.2",
+    "vitest": "2.1.1"
+  }
+}
