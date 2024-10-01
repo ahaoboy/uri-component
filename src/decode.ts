@@ -1,68 +1,76 @@
-function hexToInt(hex: string): number {
-  return Number.parseInt(hex, 16)
-}
-
-function utf8Decode(bytes: number[]): string {
-  const list: string[] = []
-  for (let i = 0; i < bytes.length; ) {
-    if (bytes[i] < 128) {
-      list.push(String.fromCharCode(bytes[i]))
-      i++
-    } else if (bytes[i] > 191 && bytes[i] < 224) {
-      list.push(
-        String.fromCharCode(((bytes[i] & 31) << 6) | (bytes[i + 1] & 63)),
-      )
-      i += 2
-    } else if (bytes[i] > 223 && bytes[i] < 240) {
-      list.push(
-        String.fromCharCode(
-          ((bytes[i] & 15) << 12) |
-            ((bytes[i + 1] & 63) << 6) |
-            (bytes[i + 2] & 63),
-        ),
-      )
-      i += 3
-    } else {
-      const codePoint =
-        ((bytes[i] & 7) << 18) |
-        ((bytes[i + 1] & 63) << 12) |
-        ((bytes[i + 2] & 63) << 6) |
-        (bytes[i + 3] & 63)
-      list.push(String.fromCodePoint(codePoint))
-      i += 4
-    }
-  }
-  return list.join("")
-}
+import { getIntFromHex, throwError, UnreservedChars, utf8Decode } from "./share"
 
 export function decodeURIComponent(encodedURI: string): string {
   const result: string[] = []
-  let bytes: number[] = []
-  for (let i = 0; i < encodedURI.length; i++) {
-    if (encodedURI[i] === "%") {
-      if (i + 2 < encodedURI.length) {
-        const hex = encodedURI.slice(i + 1, i + 3)
-        if (/^[0-9A-Fa-f]{2}$/.test(hex)) {
-          bytes.push(hexToInt(hex))
-          i += 2
-        } else {
-          throw new URIError("URI malformed")
+  const len = encodedURI.length
+  let i = 0
+  while (i < len) {
+    const c = encodedURI[i]
+    if (UnreservedChars.includes(c)) {
+      result.push(c)
+      i++
+    } else if (c === "%") {
+      const v1 = getIntFromHex(encodedURI, i + 1)
+      if (v1 < 128) {
+        result.push(utf8Decode([v1]))
+        i += 3
+      } else if (v1 >> 5 === 6) {
+        if (i + 6 > len || encodedURI[i + 3] !== "%") {
+          throwError()
         }
+        const v2 = getIntFromHex(encodedURI, i + 4)
+        if (v2 >> 6 !== 2) {
+          throwError()
+        }
+        result.push(utf8Decode([v1, v2]))
+        i += 6
+      } else if (v1 >> 4 === 14) {
+        if (
+          i + 9 > len ||
+          encodedURI[i + 3] !== "%" ||
+          encodedURI[i + 6] !== "%"
+        ) {
+          throwError()
+        }
+        const v2 = getIntFromHex(encodedURI, i + 4)
+        if (v2 >> 6 !== 2) {
+          throwError()
+        }
+        const v3 = getIntFromHex(encodedURI, i + 7)
+        if (v3 >> 6 !== 2) {
+          throwError()
+        }
+        result.push(utf8Decode([v1, v2, v3]))
+        i += 9
+      } else if (v1 >> 3 === 30) {
+        if (
+          i + 12 > len ||
+          encodedURI[i + 3] !== "%" ||
+          encodedURI[i + 6] !== "%" ||
+          encodedURI[i + 9] !== "%"
+        ) {
+          throwError()
+        }
+        const v2 = getIntFromHex(encodedURI, i + 4)
+        if (v2 >> 6 !== 2) {
+          throwError()
+        }
+        const v3 = getIntFromHex(encodedURI, i + 7)
+        if (v3 >> 6 !== 2) {
+          throwError()
+        }
+        const v4 = getIntFromHex(encodedURI, i + 10)
+        if (v4 >> 6 !== 2) {
+          throwError()
+        }
+        result.push(utf8Decode([v1, v2, v3, v4]))
+        i += 12
       } else {
-        throw new URIError("URI malformed")
+        throwError()
       }
     } else {
-      if (bytes.length > 0) {
-        result.push(utf8Decode(bytes))
-        bytes = []
-      }
-      result.push(encodedURI[i])
+      throwError()
     }
   }
-
-  if (bytes.length > 0) {
-    result.push(utf8Decode(bytes))
-  }
-
   return result.join("")
 }

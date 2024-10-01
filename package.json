@@ -1,6 +1,6 @@
 {
   "name": "uri-component",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "homepage": "https://github.com/ahaoboy/uri-component#readme",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
